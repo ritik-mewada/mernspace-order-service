@@ -4,7 +4,7 @@ import logger from "./src/config/logger";
 import connectDB from "./src/config/db";
 
 const startServer = async () => {
-  const PORT = config.get("server.port") || 5503;
+  const PORT = config.get("server.port") || 5504;
 
   try {
     await connectDB();
