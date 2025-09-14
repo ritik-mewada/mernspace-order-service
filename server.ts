@@ -8,9 +8,9 @@ const startServer = async () => {
 
   try {
     await connectDB();
-
+    logger.info("Database connected successfully ");
     app
-      .listen(PORT, () => console.log(`Listening on port ${PORT}`))
+      .listen(PORT, () => logger.info(`Listening on port ${PORT}`))
       .on("error", (err) => {
         console.log("err", err.message);
         process.exit(1);
