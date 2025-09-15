@@ -4,10 +4,8 @@ import customerModel from "./customerModel";
 
 export class CustomerController {
   getCustomer = async (req: Request, res: Response) => {
-    // todo: add these fields to jwt in auth service.
     const { sub: userId, firstName, lastName, email } = req.auth;
     console.log("auth:", req.auth);
-    // todo: implement service layer.
     const customer = await customerModel.findOne({ userId });
 
     if (!customer) {
@@ -19,10 +17,33 @@ export class CustomerController {
         addresses: [],
       });
 
-      // todo: add logging
       return res.json(newCustomer);
     }
 
     res.json(customer);
+  };
+
+  addAddress = async (req: Request, res: Response) => {
+    const { sub: userId } = req.auth;
+
+    const customer = await customerModel.findByIdAndUpdate(
+      {
+        _id: req.params.id,
+        userId,
+      },
+      {
+        $push: {
+          addresses: {
+            text: req.body.address,
+            isDefault: false,
+          },
+        },
+      },
+      {
+        new: true,
+      },
+    );
+
+    return res.json(customer);
   };
 }
