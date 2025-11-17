@@ -8,12 +8,22 @@ import {
   ToppingPriceCache,
 } from "../types";
 import couponModel from "../coupon/couponModel";
+import orderModel from "./orderModel";
+import { OrderStatus, PaymentStatus } from "./orderTypes";
 
 export class OrderController {
   create = async (req: Request, res: Response) => {
-    const couponCode = req.body.couponCode;
-    const tenantId = req.body.tenantId;
-    const totalPrice = await this.calculateTotal(req.body.cart);
+    const {
+      cart,
+      couponCode,
+      tenantId,
+      paymentaMode,
+      customerId,
+      comment,
+      address,
+    } = req.body;
+
+    const totalPrice = await this.calculateTotal(cart);
 
     let discountPercentage = 0;
 
@@ -34,7 +44,22 @@ export class OrderController {
     const DELIVERY_CHARGES = 100;
     const finalTotal = priceAfterDiscount + taxes + DELIVERY_CHARGES;
 
-    return res.json({ finalTotal });
+    const newOrder = await orderModel.create({
+      cart,
+      address,
+      comment,
+      customerId,
+      deliveryCharges: DELIVERY_CHARGES,
+      discount: discountAmount,
+      paymentaMode,
+      orderStatus: OrderStatus.RECEIVED,
+      paymentStatus: PaymentStatus.PENDING,
+      taxes,
+      tenantId,
+      total: finalTotal,
+    });
+
+    return res.json({ newOrder });
   };
 
   private calculateTotal = async (cart: CartItem[]) => {
